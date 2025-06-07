@@ -55,16 +55,16 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 			RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE;
 
 	/* Configure the Ethernet device. */
-	retval = rte_eth_dev_configure(port, rx_rings, tx_rings, &port_conf);
+	retval = rte_eth_dev_configure(port, rx_rings, tx_rings, &port_conf); // 配置以太网设备，rx tx rings数量
 	if (retval != 0)
 		return retval;
 
-	retval = rte_eth_dev_adjust_nb_rx_tx_desc(port, &nb_rxd, &nb_txd);
+	retval = rte_eth_dev_adjust_nb_rx_tx_desc(port, &nb_rxd, &nb_txd); // 调整接收和发送描述符的数量
 	if (retval != 0)
 		return retval;
 
 	/* Allocate and set up 1 RX queue per Ethernet port. */
-	for (q = 0; q < rx_rings; q++) {
+	for (q = 0; q < rx_rings; q++) {  // 设置网卡的rx队列
 		retval = rte_eth_rx_queue_setup(port, q, nb_rxd,
 				rte_eth_dev_socket_id(port), NULL, mbuf_pool);
 		if (retval < 0)
@@ -74,7 +74,7 @@ port_init(uint16_t port, struct rte_mempool *mbuf_pool)
 	txconf = dev_info.default_txconf;
 	txconf.offloads = port_conf.txmode.offloads;
 	/* Allocate and set up 1 TX queue per Ethernet port. */
-	for (q = 0; q < tx_rings; q++) {
+	for (q = 0; q < tx_rings; q++) {  // 设置网卡的tx队列
 		retval = rte_eth_tx_queue_setup(port, q, nb_txd,
 				rte_eth_dev_socket_id(port), &txconf);
 		if (retval < 0)
@@ -186,7 +186,7 @@ main(int argc, char *argv[])
 	argv += ret;
 
 	/* Check that there is an even number of ports to send/receive on. */
-	nb_ports = rte_eth_dev_count_avail();
+	nb_ports = rte_eth_dev_count_avail(); // 获取可用的以太网端口数量
 	if (nb_ports < 2 || (nb_ports & 1))
 		rte_exit(EXIT_FAILURE, "Error: number of ports must be even\n");
 
@@ -201,7 +201,7 @@ main(int argc, char *argv[])
 		rte_exit(EXIT_FAILURE, "Cannot create mbuf pool\n");
 
 	/* Initializing all ports. 8< */
-	RTE_ETH_FOREACH_DEV(portid)
+	RTE_ETH_FOREACH_DEV(portid) // 初始化端口
 		if (port_init(portid, mbuf_pool) != 0)
 			rte_exit(EXIT_FAILURE, "Cannot init port %"PRIu16 "\n",
 					portid);
